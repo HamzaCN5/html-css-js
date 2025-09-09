@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyCode</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --dark-bg: #1a2b3c;
+            --editor-bg: #1e1e1e;
+            --header-bg: #2d2d2d;
+            --text-light: #ecf0f1;
+            --text-dark: #2c3e50;
+            --grid-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark-bg) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo span {
+            color: var(--secondary);
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            color: var(--success);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav li {
+            margin-left: 25px;
+        }
+        
+        nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            padding: 8px 12px;
+            border-radius: 4px;
+        }
+        
+        nav a:hover {
+            color: var(--secondary);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .editor-container {
+            background: var(--editor-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .editor-header {
+            background: var(--header-bg);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #444;
+        }
+        
+        .editor-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .editor-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .editor-actions button {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .editor-actions button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .editor-actions button.reset {
+            background: var(--accent);
+        }
+        
+        .editor-actions button.reset:hover {
+            background: #c0392b;
+        }
+        
+        .code-editor {
+            width: 100%;
+            height: 400px;
+            background: var(--editor-bg);
+            color: #d4d4d4;
+            font-family: 'Consolas', monospace;
+            font-size: 16px;
+            padding: 20px;
+            border: none;
+            resize: none;
+            line-height: 1.5;
+            tab-size: 4;
+            -moz-tab-size: 4;
+        }
+        
+        .game-container {
+            background: #0d1b2a;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        .game-header {
+            background: var(--header-bg);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #444;
+        }
+        
+        .game-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .level-info {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .level-info div {
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        #game-canvas {
+            width: 100%;
+            height: 370px;
+            display: block;
+            background: #0a1520;
+        }
+        
+        .output-container {
+            grid-column: 1 / -1;
+            background: var(--editor-bg);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .output-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        #output-content {
+            background: #252526;
+            padding: 15px;
+            border-radius: 4px;
+            height: 150px;
+            overflow-y: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+        
+        .success {
+            color: var(--success);
+        }
+        
+        .error {
+            color: var(--accent);
+        }
+        
+        .instructions {
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .instructions h3 {
+            margin-bottom: 15px;
+            color: var(--secondary);
+        }
+        
+        .instructions p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        
+        .instructions code {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .instructions ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        footer {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Animation for hero movement */
+        @keyframes moveHero {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(var(--tx), var(--ty)); }
+        }
+        
+        .moving {
+            animation: moveHero 0.5s ease-in-out forwards;
+        }
+        
+        /* Pulse animation for gems */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .gem {
+            animation: pulse 2s infinite;
+        }
+        
+        /* Loader for code execution */
+        .loader {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--secondary);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Syntax highlighting for code */
+        .keyword {
+            color: #569cd6;
+        }
+        
+        .function {
+            color: #dcdcaa;
+        }
+        
+        .comment {
+            color: #6a9955;
+        }
+        
+        .string {
+            color: #ce9178;
+        }
+        
+        .number {
+            color: #b5cea8;
+        }
+        
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted var(--secondary);
+            cursor: help;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-code"></i>
+                Py<span>Craft</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Levels</a></li>
+                    <li><a href="#">Docs</a></li>
+                    <li><a href="#">Community</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <div class="editor-container">
+            <div class="editor-header">
+                <div class="editor-title">Python Code Editor</div>
+                <div class="editor-actions">
+                    <button id="run-btn">
+                        <i class="fas fa-play"></i> Run Code
+                    </button>
+                    <button id="reset-btn" class="reset">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+            </div>
+            <textarea id="code-editor" class="code-editor" spellcheck="false">
+
+</textarea>
+        </div>
+
+        <div class="game-container">
+            <div class="game-header">
+                <div class="game-title">Game View</div>
+                <div class="level-info">
+                    <div>
+                        <i class="fas fa-layer-group"></i>
+                        Level: <span id="level-num">1</span>
+                    </div>
+                    <div>
+                        <i class="fas fa-gem"></i>
+                        Gems: <span id="gems-collected">0</span>/<span id="gems-total">2</span>
+                    </div>
+                </div>
+            </div>
+            <canvas id="game-canvas"></canvas>
+        </div>
+
+        <div class="output-container">
+            <div class="output-header">
+                <div class="output-title">Output Console</div>
+                <div id="execution-status"></div>
+            </div>
+            <div id="output-content">Initializing game environment...
+Ready! Click 'Run Code' to execute your Python code.</div>
+        </div>
+
+        <div class="instructions">
+            <h3>How to Play</h3>
+            <p>Write Python code to control your hero. Available commands:</p>
+            <ul>
+                <li><code>hero.move_up()</code>, <code>hero.move_down()</code>, <code>hero.move_left()</code>, <code>hero.move_right()</code> - Move the hero</li>
+                <li><code>hero.collect_gem()</code> - Collect a gem if nearby</li>
+                <li><code>hero.find_nearest_gem()</code> - Returns the nearest gem object</li>
+                <li><code>hero.say("message")</code> - Display a message above the hero</li>
+            </ul>
+            <p>After writing your code, click "Run Code" to execute it. Use "Reset" to restart the level.</p>
+        </div>
+
+        <footer>
+            <p>PyCode &copy; 2025 - Learn Python through gaming</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('game-canvas');
+            const ctx = canvas.getContext('2d');
+            const runBtn = document.getElementById('run-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const codeEditor = document.getElementById('code-editor');
+            const outputContent = document.getElementById('output-content');
+            const gemsCollected = document.getElementById('gems-collected');
+            const gemsTotal = document.getElementById('gems-total');
+            const executionStatus = document.getElementById('execution-status');
+            
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            let gameState = {
+                hero: { x: 50, y: 50, width: 40, height: 40, color: '#3498db', message: '', messageTimer: 0 },
+                gems: [
+                    { x: 300, y: 150, width: 30, height: 30, color: '#f1c40f', collected: false },
+                    { x: 450, y: 250, width: 30, height: 30, color: '#f1c40f', collected: false }
+                ],
+                obstacles: [
+                    { x: 200, y: 100, width: 50, height: 200, color: '#7f8c8d' },
+                    { x: 350, y: 50, width: 50, height: 150, color: '#7f8c8d' }
+                ],
+                running: false,
+                level: 1,
+                score: 0
+            };
+            
+            // Draw game elements
+            function draw() {
+                // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw grid for reference
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.lineWidth = 1;
+                for (let x = 0; x < canvas.width; x += 50) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+                for (let y = 0; y < canvas.height; y += 50) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
+                
+                // Draw obstacles
+                gameState.obstacles.forEach(obstacle => {
+                    ctx.fillStyle = obstacle.color;
+                    ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                    ctx.strokeStyle = '#95a5a6';
+                    ctx.strokeRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                });
+                
+                // Draw gems
+                gameState.gems.forEach(gem => {
+                    if (!gem.collected) {
+                        ctx.fillStyle = gem.color;
+                        ctx.beginPath();
+                        ctx.arc(gem.x + gem.width/2, gem.y + gem.height/2, gem.width/2, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Add shine effect
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+                        ctx.beginPath();
+                        ctx.arc(gem.x + gem.width/2 - 5, gem.y + gem.height/2 - 5, gem.width/6, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                });
+                
+                // Draw hero
+                const hero = gameState.hero;
+                ctx.fillStyle = hero.color;
+                ctx.fillRect(hero.x, hero.y, hero.width, hero.height);
+                
+                // Draw hero details
+                ctx.fillStyle = '#2980b9';
+                ctx.fillRect(hero.x + 10, hero.y + 5, 20, 20);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(hero.x + 15, hero.y + 10, 10, 10);
+                
+                // Draw hero message
+                if (hero.message && hero.messageTimer > 0) {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = '14px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(hero.message, hero.x + hero.width/2, hero.y - 10);
+                }
+                
+                // Update gems counter
+                const collected = gameState.gems.filter(gem => gem.collected).length;
+                gemsCollected.textContent = collected;
+                gemsTotal.textContent = gameState.gems.length;
+            }
+            
+            // Check collision between two rectangles
+            function checkCollision(rect1, rect2) {
+                return rect1.x < rect2.x + rect2.width &&
+                       rect1.x + rect1.width > rect2.x &&
+                       rect1.y < rect2.y + rect2.height &&
+                       rect1.y + rect1.height > rect2.y;
+            }
+            
+            // Check if movement is valid (not colliding with obstacles)
+            function isValidMove(x, y, width, height) {
+                const proposedRect = { x, y, width, height };
+                
+                for (const obstacle of gameState.obstacles) {
+                    if (checkCollision(proposedRect, obstacle)) {
+                        return false;
+                    }
+                }
+                
+                // Check boundaries
+                if (x < 0 || y < 0 || x + width > canvas.width || y + height > canvas.height) {
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            // Hero API - these functions are exposed to Python code
+            const heroAPI = {
+                move_up: function() {
+                    const newY = gameState.hero.y - 50;
+                    if (isValidMove(gameState.hero.x, newY, gameState.hero.width, gameState.hero.height)) {
+                        gameState.hero.y = newY;
+                        outputContent.textContent += 'Hero moved up.\n';
+                        outputContent.scrollTop = outputContent.scrollHeight;
+                        draw();
+                        return true;
+                    } else {
+                        outputContent.textContent += 'Cannot move up - obstacle in the way!\n';
+                        outputContent.scrollTop = outputContent.scrollHeight;
+                        return false;
+                    }
+                },
+                move_down: function() {
+                    const newY = gameState.hero.y + 50;
+                    if (isValidMove(gameState.hero.x, newY, gameState.hero.width, gameState.hero.height)) {
+                        gameState.hero.y = newY;
+                        outputContent.textContent += 'Hero moved down.\n';
+                        outputContent.scrollTop = outputContent.scrollHeight;
+                        draw();
+                        return true;
+                    } else {
+                        outputContent.textContent += 'Cannot move down - obstacle in the way!\n';
+                        outputContent.scrollTop = outputContent.scrollHeight;
+                        return false;
+                    }
+                },
+                move_left: function() {
+                    const newX = gameState.hero.x - 50;
+                    if (isValidMove(newX, gameState.hero.y, gameState.hero.width, gameState.hero.height)) {
+                        gameState.hero.x = newX;
+                        outputContent.textContent += 'Hero moved left.\n';
+                        outputContent.scrollTop = outputContent.scrollHeight;
+                        draw();
+                        return true;
+                    } else {
+                        outputContent.textContent += 'Cannot move left - obstacle in the way!\n';
+                        outputContent.scrollTop = outputContent.scrollHeight;
+                        return false;
+                    }
+                },
+                move_right: function() {
+                    const newX = gameState.hero.x + 50;
+                    if (isValidMove(newX, gameState.hero.y, gameState.hero.width, gameState.hero.height)) {
+                        gameState.hero.x = newX;
+                        outputContent.textContent += 'Hero moved right.\n';
+                        outputContent.scrollTop = outputContent.scrollHeight;
+                        draw();
+                        return true;
+                    } else {
+                        outputContent.textContent += 'Cannot move right - obstacle in the way!\n';
+                        outputContent.scrollTop = outputContent.scrollHeight;
+                        return false;
+                    }
+                },
+                collect_gem: function() {
+                    const hero = gameState.hero;
+                    for (let gem of gameState.gems) {
+                        if (!gem.collected && checkCollision(hero, gem)) {
+                            gem.collected = true;
+                            gameState.score += 10;
+                            outputContent.textContent += 'Hero collected a gem! +10 points\n';
+                            outputContent.scrollTop = outputContent.scrollHeight;
+                            draw();
+                            return true;
+                        }
+                    }
+                    outputContent.textContent += 'No gem nearby to collect.\n';
+                    outputContent.scrollTop = outputContent.scrollHeight;
+                    return false;
+                },
+                find_nearest_gem: function() {
+                    const hero = gameState.hero;
+                    let nearestGem = null;
+                    let minDistance = Infinity;
+                    
+                    for (let gem of gameState.gems) {
+                        if (!gem.collected) {
+                            const dx = gem.x - hero.x;
+                            const dy = gem.y - hero.y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            
+                            if (distance < minDistance) {
+                                minDistance = distance;
+                                nearestGem = gem;
+                            }
+                        }
+                    }
+                    
+                    return nearestGem;
+                },
+                say: function(message) {
+                    gameState.hero.message = message;
+                    gameState.hero.messageTimer = 100;
+                    outputContent.textContent += `Hero says: "${message}"\n`;
+                    outputContent.scrollTop = outputContent.scrollHeight;
+                    draw();
+                }
+            };
+            
+            // Custom Python interpreter using Function constructor
+            function executeUserCode() {
+                if (gameState.running) {
+                    outputContent.textContent += "Code is already running. Please wait.\n";
+                    outputContent.scrollTop = outputContent.scrollHeight;
+                    return;
+                }
+                
+                executionStatus.innerHTML = '<div class="loader"></div> Executing...';
+                outputContent.textContent = "Executing your code...\n";
+                gameState.running = true;
+                
+                // Get user code
+                const userCode = codeEditor.value;
+                
+                try {
+                    // Create a function from the user code with the heroAPI as a parameter
+                    const userFunction = new Function('hero', userCode);
+                    
+                    // Execute the function with the heroAPI
+                    userFunction(heroAPI);
+                    
+                    outputContent.textContent += 'Code executed successfully!\n';
+                    executionStatus.textContent = 'Execution complete';
+                } catch (error) {
+                    outputContent.textContent += `Error: ${error.message}\n`;
+                    executionStatus.innerHTML = '<span class="error">Execution failed</span>';
+                }
+                
+                outputContent.scrollTop = outputContent.scrollHeight;
+                gameState.running = false;
+            }
+            
+            // Reset game state
+            function resetGame() {
+                gameState.hero = { x: 50, y: 50, width: 40, height: 40, color: '#3498db', message: '', messageTimer: 0 };
+                gameState.gems.forEach(gem => {
+                    gem.collected = false;
+                });
+                gameState.score = 0;
+                outputContent.textContent = "Game reset. Ready to run code again!\n";
+                executionStatus.textContent = '';
+                draw();
+            }
+            
+            // Initialize game
+            function init() {
+                draw();
+                
+                // Event listeners
+                runBtn.addEventListener('click', executeUserCode);
+                resetBtn.addEventListener('click', resetGame);
+                
+                window.addEventListener('resize', () => {
+                    canvas.width = canvas.offsetWidth;
+                    canvas.height = canvas.offsetHeight;
+                    draw();
+                });
+                
+                // Update message timer
+                setInterval(() => {
+                    if (gameState.hero.messageTimer > 0) {
+                        gameState.hero.messageTimer--;
+                    }
+                }, 100);
+            }
+            
+            init();
+        });
+    </script>
+</body>
+</html>
